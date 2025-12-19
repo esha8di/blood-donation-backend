@@ -1,0 +1,6 @@
+node_modules
+.env
+fir-auth-a9-ee1f1-firebase-adminsdk-fbsvc-76fe51f7e9.json
+.env.local
+.env.production
+npm-debug.log
