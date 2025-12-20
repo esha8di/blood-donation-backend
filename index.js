@@ -5,6 +5,8 @@ const cors=require('cors');
 require('dotenv').config();
 
 const port=process.env.PORT || 3000;
+const stripe = require('stripe')(process.env.STRIPE_SECRATE);
+const crypto= require('crypto')
 
 const app=express();
 app.use(cors());
@@ -150,6 +152,46 @@ async function run() {
     
       const totalRequest = await requestcollection.countDocuments(query);
       res.send({request : result, totalRequest});
+
+    })
+
+    //deonate
+    app.post('/create-payment-checkout', async(req,res)=>{
+      const information = req.body;
+      console.log(information)
+
+      const amount = parseInt(information.donation) * 100;
+
+      const session = await stripe.checkout.sessions.create({
+ 
+  line_items: [
+    {
+      price_data :{
+        currency : 'usd',
+        unit_amount : amount,
+        product_data : {
+          name:'pls donate',
+        }
+
+      },
+     
+      quantity : 1
+    },
+    
+  ],
+  mode: 'payment',
+  metadata: {
+    donorName : information?.donorName
+
+  },
+  customer_email : information?.donationEmail,
+  success_url: `${process.env.SITE_DOMAIN}/payment_success?session_id={CHECKOUT_SESSION_ID}`,
+cancel_url: `${process.env.SITE_DOMAIN
+}/payment_cancelled`,
+
+});
+
+    res.send({url : session.url});
 
     })
 
