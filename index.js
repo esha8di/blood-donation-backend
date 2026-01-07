@@ -24,9 +24,9 @@ admin.initializeApp({
 const verifyFbToken = async (req, res, next) => {
   const token = req.headers.authorization;
 
-  // if (!token) {
-  //   return res.status(401).send({ massage: 'unauthorized access' });
-  // }
+  if (!token) {
+    return res.status(401).send({ massage: 'unauthorized access' });
+  }
 
   try {
     const idToken = token.split(' ')[1];
