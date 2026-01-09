@@ -59,6 +59,7 @@ async function run() {
       const userinfo = req.body;
       userinfo.createdAt = new Date();
       userinfo.role = 'donor';
+      userinfo.status = 'active';
       const result = await usercollection.insertOne(userinfo);
       res.send(result);
     });
@@ -67,6 +68,37 @@ async function run() {
       const result = await usercollection.find().toArray();
       res.status(200).send(result);
     });
+
+    app.get('/users/profile/:email',async(req,res)=>{
+      const email = req.params.email;
+      const query={
+        email:email,
+      }
+      console.log(email)
+      const result = await usercollection.findOne(query);
+      res.send(result);
+    })
+
+    app.put('/profile/update/:email', async(req,res)=>{
+      const email = req.params.email;
+      const query={
+        email:email,
+      }
+      const updateData= req.body;
+      const updateDocument={
+        $set:{
+          name:updateData.name,
+          district:updateData.district,
+          upazila:updateData.upazila,
+          bloodgrp:updateData.bloodgrp
+        }
+      }
+
+      const result= await usercollection.updateOne(query, updateDocument);
+      console.log(result)
+      res.send(result)
+    })
+
 
     app.get('/users/role/:email', async (req, res) => {
       const { email } = req.params;
@@ -86,7 +118,7 @@ async function run() {
       const requestinfo = req.body;
       requestinfo.createdAt = new Date();
       const result = await requestcollection.insertOne(requestinfo);
-      console.log(result);
+     
       res.send(result);
     });
 
@@ -108,7 +140,7 @@ async function run() {
     app.delete('/myrequest/:id', verifyFbToken, async (req, res) => {
       const id = req.params;
       const result = await requestcollection.deleteOne({ _id: new ObjectId(id) });
-      console.log('printquery:', { _id: new ObjectId(id) });
+      // console.log('printquery:', { _id: new ObjectId(id) });
       res.send(result);
     });
 
@@ -121,7 +153,7 @@ async function run() {
 
       const result = await requestcollection.find(query).toArray();
       res.send(result);
-      console.log(result);
+      // console.log(result);
     });
 
     // ====================== PAYMENT ROUTES ======================
@@ -151,7 +183,7 @@ async function run() {
     app.post('/success_payment', async (req, res) => {
       const { session_id } = req.query;
       const session = await stripe.checkout.sessions.retrieve(session_id);
-      console.log(session);
+      // console.log(session);
 
       const transactionId = session.payment_intent;
 
