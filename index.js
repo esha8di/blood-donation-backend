@@ -95,7 +95,7 @@ async function run() {
       }
 
       const result= await usercollection.updateOne(query, updateDocument);
-      console.log(result)
+     
       res.send(result)
     })
 
@@ -117,6 +117,7 @@ async function run() {
     app.post('/requests', verifyFbToken, async (req, res) => {
       const requestinfo = req.body;
       requestinfo.createdAt = new Date();
+      requestinfo.donor_status= "pending";
       const result = await requestcollection.insertOne(requestinfo);
      
       res.send(result);
@@ -135,6 +136,20 @@ async function run() {
 
       const totalRequest = await requestcollection.countDocuments(query);
       res.send({ request: result, totalRequest });
+    });
+
+    app.get('/myrequest/:email', verifyFbToken, async (req, res) => {
+      const email = req.params.email;
+     
+      
+      const query = { requesterEmail: email };
+
+      const result =await requestcollection.find(query).toArray()
+      console.log('result', result)
+        
+
+      
+      res.send(result);
     });
 
     app.delete('/myrequest/:id', verifyFbToken, async (req, res) => {
