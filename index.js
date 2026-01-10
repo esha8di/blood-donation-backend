@@ -171,6 +171,18 @@ async function run() {
       // console.log(result);
     });
 
+    // update request status
+    app.patch('/update/request/status', async (req, res) => {
+      const { id, status } = req.query;
+      console.log(id,status)
+      const doc = await requestcollection.findOne({ _id: new ObjectId(id) });
+      console.log(doc)
+     
+      const updateStatus = { $set: { donor_status: status } };
+      const result = await requestcollection.updateOne({ _id:new ObjectId(id) }, updateStatus);
+      res.send(result);
+    });
+
     // ====================== PAYMENT ROUTES ======================
     app.post('/create-payment-checkout', async (req, res) => {
       const information = req.body;
