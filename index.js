@@ -140,6 +140,7 @@ async function run() {
 
     app.get('/myrequest/:email', verifyFbToken, async (req, res) => {
       const email = req.params.email;
+
      
       
       const query = { requesterEmail: email };
@@ -151,6 +152,53 @@ async function run() {
       
       res.send(result);
     });
+
+  app.get('/myrequest/view/:id', verifyFbToken, async (req, res) => {
+  const { id } = req.params;   
+  console.log('request id:', id);
+
+  const result = await requestcollection.findOne({
+    _id: new ObjectId(id)
+  });
+
+  console.log('db result:', result);
+  res.send(result);
+});
+
+// edit request
+// Update a donation request by ID
+app.put('/requests/edit/:id', verifyFbToken, async (req, res) => {
+  
+    const { id } = req.params;
+    const updatedData = req.body;
+
+    // Build update document
+    const updateDoc = {
+      $set: {
+        recipientName: updatedData.recipientName,
+        district: updatedData.district,
+        upazila: updatedData.upazila,
+        hospitalName: updatedData.hospitalName,
+        address: updatedData.address,
+        bloodGroup: updatedData.bloodGroup,
+        donationDateTime: new Date(updatedData.donationDateTime),
+        message: updatedData.message,
+        donor_status: updatedData.donor_status || "pending"
+      }
+    };
+
+    const result = await requestcollection.updateOne(
+      { _id: new ObjectId(id) },
+      updateDoc
+    );
+
+   
+
+    res.send({ message: "Request updated successfully", result });
+   
+});
+
+
 
     app.delete('/myrequest/:id', verifyFbToken, async (req, res) => {
       const id = req.params;
