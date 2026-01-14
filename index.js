@@ -161,6 +161,20 @@ async function run() {
       const totalRequest = await requestcollection.countDocuments(query);
       res.send({ request: result, totalRequest });
     });
+    app.get('/allrequest', verifyFbToken, async (req, res) => {
+      const email = req.decoded_email;
+      const size = Number(req.query.size);
+      const page = Number(req.query.page);
+      const query = { requesterEmail: email };
+
+      const result = await requestcollection.find()
+        .limit(size)
+        .skip(page * size)
+        .toArray();
+
+      const totalRequest = await requestcollection.countDocuments();
+      res.send({ request: result, totalRequest });
+    });
 
     app.get('/myrequest/:email', verifyFbToken, async (req, res) => {
       const email = req.params.email;
