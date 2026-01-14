@@ -54,7 +54,7 @@ async function run() {
     const requestcollection = database.collection('request');
     const paymentcollection = database.collection('payment');
 
-    // ====================== USER ROUTES ======================
+    //  USER ROUTES 
     app.post('/users', async (req, res) => {
       const userinfo = req.body;
       userinfo.createdAt = new Date();
@@ -113,7 +113,18 @@ async function run() {
       res.send(result);
     });
 
-    // ====================== REQUEST ROUTES ======================
+    app.patch('/users/roleset/:id', async(req,res) =>{
+      const id=req.params.id;
+      const {role}=req.body;
+      const result = await usercollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { role } }
+    );
+    res.send(result)
+      
+    })
+
+    //  REQUEST ROUTES 
     app.post('/requests', verifyFbToken, async (req, res) => {
       const requestinfo = req.body;
       requestinfo.createdAt = new Date();
@@ -122,6 +133,19 @@ async function run() {
      
       res.send(result);
     });
+
+     app.get('/getrequest', verifyFbToken, async (req, res) => {
+      const result = await requestcollection.find().toArray();
+      res.status(200).send(result);
+    });
+     app.get('/status', async (req, res) => {
+      const result = await requestcollection.find().toArray();
+      console.log(result)
+      res.status(200).send(result);
+    });
+
+    
+
 
     app.get('/myrequest', verifyFbToken, async (req, res) => {
       const email = req.decoded_email;
@@ -140,16 +164,10 @@ async function run() {
 
     app.get('/myrequest/:email', verifyFbToken, async (req, res) => {
       const email = req.params.email;
-
-     
-      
       const query = { requesterEmail: email };
 
-      const result =await requestcollection.find(query).toArray()
-      console.log('result', result)
-        
-
-      
+      const result =await requestcollection.find(query).limit(3).toArray();
+      console.log('result', result);
       res.send(result);
     });
 
@@ -278,7 +296,7 @@ app.put('/requests/edit/:id', verifyFbToken, async (req, res) => {
     });
 
     // MongoDB ping
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
   } finally {
