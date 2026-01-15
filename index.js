@@ -144,6 +144,18 @@ async function run() {
       res.status(200).send(result);
     });
 
+     app.patch('/requests/status/:id', async(req,res) =>{
+      const id=req.params.id;
+      const {status}=req.body;
+      console.log(id,status)
+      const result = await requestcollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { donor_status:status } }
+    );
+    res.send(result);
+      
+    })
+
     
 
 
